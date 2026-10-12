@@ -42,4 +42,19 @@ npm run build:css
 
 ## Deploy
 
-Resumen de despliegue y procedimiento de bump de caché: pendiente de completar en la unidad de trabajo 3 (shell instalable, service worker y publicación en GitHub Pages).
+**Sitio publicado**: https://melvinramirez.github.io/foodc-cliente/
+
+- **Hosting**: GitHub Pages, "Deploy from a branch" → `main` / `(root)`. Sin build step: los archivos se sirven tal como están commiteados.
+- **QR por mesa**: cada mesa codifica `https://melvinramirez.github.io/foodc-cliente/?table=NN` (ej. `?table=05`). Si falta el parámetro `table`, la PWA pide la mesa con un modal manual.
+- **`js/config.js`**: contiene la URL real de producción del Web App de Apps Script (`API_URL`). Si el backend se re-despliega con una nueva URL `/exec`, hay que actualizar esa constante acá y volver a publicar.
+
+### Bump de versión de caché
+
+El service worker (`sw.js`) precachea el app shell con un nombre de caché versionado (`CACHE_VERSION`, actualmente `foodc-shell-v1`). **En cada deploy que cambie HTML, CSS, JS, el manifest o los íconos**, hay que incrementar ese valor (ej. `foodc-shell-v2`) antes de pushear — si no se bumpea, los clientes que ya instalaron la PWA siguen sirviendo el shell viejo desde caché indefinidamente.
+
+```js
+// sw.js
+const CACHE_VERSION = 'foodc-shell-v2'; // ← incrementar en cada deploy del shell
+```
+
+Las llamadas a la API (`script.google.com` / `script.googleusercontent.com`) nunca se cachean — siempre van a la red, así que no requieren ningún bump.
