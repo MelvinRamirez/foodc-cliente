@@ -142,6 +142,7 @@ export function mountCategoryNav(root, store) {
   let activeId = null;
   let observer = null;
   let lastCategories = null;
+  let suppressObserverUntil = 0;
 
   function renderChips(categories) {
     const fragment = document.createDocumentFragment();
@@ -157,6 +158,12 @@ export function mountCategoryNav(root, store) {
     if (typeof IntersectionObserver === 'undefined') return;
     observer = new IntersectionObserver(
       (entries) => {
+        // Mientras dura el scroll programático disparado por un click (ver
+        // `handleClick`), ignoramos al observer: el scroll suave de paso
+        // por categorías intermedias dispararía cambios de intersección
+        // que pisarían el chip que el usuario eligió explícitamente, antes
+        // de que el scroll termine de asentarse en la sección correcta.
+        if (Date.now() < suppressObserverUntil) return;
         const next = pickActiveCategory(entries, activeId);
         if (next !== activeId) {
           activeId = next;
@@ -196,7 +203,17 @@ export function mountCategoryNav(root, store) {
   function handleClick(event) {
     const target = event.target.closest ? event.target.closest('[data-action="scroll-to-category"]') : null;
     if (!target || !root.contains(target)) return;
-    const section = document.getElementById(target.dataset.categoryId);
+    const id = target.dataset.categoryId;
+    // Actualiza el chip activo de inmediato (optimista), sin esperar a que
+    // el IntersectionObserver detecte la sección: así el click siempre
+    // refleja la elección del usuario, incluso si la sección es corta o el
+    // observer tarda en reaccionar.
+    if (id !== activeId && lastCategories) {
+      activeId = id;
+      renderChips(lastCategories);
+    }
+    suppressObserverUntil = Date.now() + 700;
+    const section = document.getElementById(id);
     if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
