@@ -87,6 +87,27 @@ test('addItem/increment/decrement/removeItem delegate to cart module', () => {
   assert.equal(s.cart.lines.length, 0);
 });
 
+test('addItem while a receipt is showing implicitly starts a new order', () => {
+  let s = initialState();
+  s = { ...s, table: { value: '05', source: 'url' } };
+  s = actions.orderSucceeded(s, { data: { order_id: 'ORD-1' } });
+  assert.equal(canSubmit(s), false);
+
+  s = actions.addItem(s, menuItem);
+  assert.equal(s.lastReceipt, null);
+  assert.equal(s.submission.status, 'idle');
+  assert.equal(s.cart.lines.length, 1);
+  assert.equal(canSubmit(s), true);
+});
+
+test('addItem does not touch lastReceipt or submission when there is no pending receipt', () => {
+  let s = initialState();
+  s = { ...s, submission: { status: 'error', error: { code: 'X', fields: [] } } };
+  s = actions.addItem(s, menuItem);
+  assert.equal(s.lastReceipt, null);
+  assert.deepStrictEqual(s.submission, { status: 'error', error: { code: 'X', fields: [] } });
+});
+
 test('setNotes clips to NOTES_MAX code points', () => {
   const long = 'a'.repeat(300);
   const s = actions.setNotes(initialState(), long);

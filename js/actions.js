@@ -64,7 +64,22 @@ export const actions = {
   },
 
   addItem(state, menuItem) {
-    return { ...state, cart: cart.addItem(state.cart, menuItem) };
+    // Agregar un producto mientras todavía se muestra el ticket de un pedido
+    // ya confirmado (`lastReceipt`) es, en los hechos, empezar un pedido
+    // nuevo: desde el rediseño el ticket es solo una sección arriba de la
+    // página (no una pantalla bloqueante), así que el usuario puede seguir
+    // explorando el menú sin tocar "Pedir algo más" primero. Sin este reset,
+    // `canSubmit` seguía negando el envío indefinidamente porque
+    // `lastReceipt` nunca se limpiaba (mismo efecto que `newOrderStarted`,
+    // disparado implícitamente por la acción de agregar en vez de requerir
+    // el botón explícito).
+    const startingNewOrder = state.lastReceipt !== null;
+    return {
+      ...state,
+      cart: cart.addItem(state.cart, menuItem),
+      lastReceipt: startingNewOrder ? null : state.lastReceipt,
+      submission: startingNewOrder ? { status: 'idle', error: null } : state.submission,
+    };
   },
 
   increment(state, itemId) {
