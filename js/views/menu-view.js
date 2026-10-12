@@ -46,7 +46,7 @@ function renderItem(item) {
         'button',
         {
           type: 'button',
-          class: 'menu-item__add',
+          class: 'menu-item__add min-h-11 min-w-11',
           'data-action': 'add-item',
           'data-item-id': item.item_id,
         },
@@ -68,7 +68,7 @@ function renderError(menuState) {
   const text = menuState.error && menuState.error.offline ? messages.menu.offline : messages.menu.error;
   return el('div', { class: 'menu-status menu-status--error' }, [
     el('p', {}, [text]),
-    el('button', { type: 'button', class: 'menu-status__retry', 'data-action': 'retry-menu' }, [
+    el('button', { type: 'button', class: 'menu-status__retry min-h-11 min-w-11', 'data-action': 'retry-menu' }, [
       messages.menu.retry,
     ]),
   ]);

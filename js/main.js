@@ -111,9 +111,12 @@ function main() {
     }
   });
 
-  // El registro del service worker se agrega en la unidad de trabajo 3
-  // (tarea 9.4), junto con sw.js/manifest.webmanifest/icons; no corresponde
-  // a esta unidad (ver tasks.md Fase 7 vs Fase 9).
+  // Registra el service worker del app shell (diner-pwa-shell). Sin recarga
+  // automática al actualizar: una recarga forzada interrumpiría un pedido en
+  // curso (design.md, Architecture Decision 6).
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js', { scope: './' });
+  }
 }
 
 main();
