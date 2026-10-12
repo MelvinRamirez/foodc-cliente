@@ -52,8 +52,14 @@ function main() {
   // El carrito/recibo persistidos quedan atados a la mesa con la que se
   // guardaron (persistence.js). Si esta carga resuelve una mesa distinta
   // (mismo navegador, otro QR), se descartan en vez de mostrar el pedido
-  // de la mesa anterior.
-  if (hydrated.table !== null && hydrated.table !== table.value) {
+  // de la mesa anterior. Sin el `hydrated.table !== null` de la versión
+  // anterior: un `localStorage` guardado ANTES de que persistence.js
+  // empezara a etiquetar la mesa (cualquier navegador que ya hubiera usado
+  // la app) nunca tiene ese campo, así que la comparación nunca se disparaba
+  // y el pedido viejo seguía colándose siempre. Tratar "sin mesa registrada"
+  // igual que "mesa distinta" es una migración de una sola vez (en el peor
+  // caso, un carrito legítimo de antes del fix se limpia una vez de más).
+  if (hydrated.table !== table.value) {
     hydrated.cart = undefined;
     hydrated.lastReceipt = null;
     hydrated.ambiguousPending = null;
