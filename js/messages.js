@@ -8,6 +8,9 @@ export const messages = {
     error: 'No se pudo cargar el menú.',
     retry: 'Reintentar',
     offline: 'Sin conexión. Mostrando la última versión disponible.',
+    add: '+ Agregar',
+    increment: 'Agregar una unidad',
+    decrement: 'Quitar una unidad',
   },
   image: {
     alt: 'Imagen del plato',

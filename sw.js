@@ -26,6 +26,7 @@ const PRECACHE = [
   './js/effects.js',
   './js/main.js',
   './js/views/dom.js',
+  './js/views/category-nav.js',
   './js/views/menu-view.js',
   './js/views/table-modal.js',
   './js/views/cart-view.js',

@@ -8,6 +8,7 @@ import { formatTableLabel } from './format.js';
 import { select } from './store.js';
 import * as effects from './effects.js';
 import { mountMenuView } from './views/menu-view.js';
+import { mountCategoryNav } from './views/category-nav.js';
 import { mountTableModal } from './views/table-modal.js';
 import { mountCartView } from './views/cart-view.js';
 import { mountSubmitView } from './views/submit-view.js';
@@ -88,12 +89,14 @@ function main() {
   renderTableLabel(store.getState().table);
   select(store, (state) => state.table, renderTableLabel);
 
+  const categoryNavRoot = document.getElementById('category-nav-root');
   const menuRoot = document.getElementById('menu-root');
   const tableModalRoot = document.getElementById('table-modal-root');
   const cartRoot = document.getElementById('cart-root');
   const submitRoot = document.getElementById('submit-root');
   const receiptRoot = document.getElementById('receipt-root');
 
+  mountCategoryNav(categoryNavRoot, store);
   mountTableModal(tableModalRoot, store, handlers);
   mountMenuView(menuRoot, store, handlers);
   mountCartView(cartRoot, store, handlers);
