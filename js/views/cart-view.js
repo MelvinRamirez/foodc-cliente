@@ -22,7 +22,7 @@ function renderNotice(cartNotice, onDismiss) {
     el('ul', { class: 'cart-notice__list' }, items),
     el(
       'button',
-      { type: 'button', class: 'cart-notice__dismiss', onclick: onDismiss },
+      { type: 'button', class: 'cart-notice__dismiss min-h-11 min-w-11', onclick: onDismiss },
       [messages.cart.noticeDismiss],
     ),
   ]);
@@ -36,7 +36,7 @@ function renderLine(line, handlers) {
         'button',
         {
           type: 'button',
-          class: 'cart-line__btn',
+          class: 'cart-line__btn min-h-11 min-w-11',
           'aria-label': 'Quitar una unidad',
           onclick: () => handlers.decrement(line.item_id),
         },
@@ -47,7 +47,7 @@ function renderLine(line, handlers) {
         'button',
         {
           type: 'button',
-          class: 'cart-line__btn',
+          class: 'cart-line__btn min-h-11 min-w-11',
           'aria-label': 'Agregar una unidad',
           onclick: () => handlers.increment(line.item_id),
         },
@@ -57,7 +57,7 @@ function renderLine(line, handlers) {
         'button',
         {
           type: 'button',
-          class: 'cart-line__remove',
+          class: 'cart-line__remove min-h-11 min-w-11',
           onclick: () => handlers.removeItem(line.item_id),
         },
         ['Quitar'],
