@@ -22,7 +22,11 @@ function render(slice) {
         el('p', {}, [messages.submit.ambiguousWarning]),
         el(
           'button',
-          { type: 'button', class: 'submit-ambiguous__ack min-h-11 min-w-11', 'data-action': 'acknowledge-ambiguous' },
+          {
+            type: 'button',
+            class: 'submit-ambiguous__ack min-h-11 min-w-11 active:scale-95 transition-transform duration-100',
+            'data-action': 'acknowledge-ambiguous',
+          },
           [messages.submit.ambiguousAck],
         ),
       ]),
@@ -41,7 +45,7 @@ function render(slice) {
       'button',
       {
         type: 'button',
-        class: 'submit-button min-h-11 min-w-11',
+        class: 'submit-button min-h-11 min-w-11 active:scale-95 transition-transform duration-100',
         'data-action': 'submit-order',
         disabled: !canSubmit(slice) || inProgress,
       },

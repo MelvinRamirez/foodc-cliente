@@ -80,7 +80,7 @@ function quantityControl(item, quantity) {
         'button',
         {
           type: 'button',
-          class: 'min-h-11 min-w-11 flex items-center justify-center',
+          class: 'min-h-11 min-w-11 flex items-center justify-center active:scale-95 transition-transform duration-100',
           'aria-label': messages.menu.decrement,
           'data-action': 'decrement-item',
           'data-item-id': item.item_id,
@@ -92,7 +92,7 @@ function quantityControl(item, quantity) {
         'button',
         {
           type: 'button',
-          class: 'min-h-11 min-w-11 flex items-center justify-center',
+          class: 'min-h-11 min-w-11 flex items-center justify-center active:scale-95 transition-transform duration-100',
           'aria-label': messages.menu.increment,
           'data-action': 'increment-item',
           'data-item-id': item.item_id,
@@ -139,9 +139,15 @@ function renderError(menuState) {
   const text = menuState.error && menuState.error.offline ? messages.menu.offline : messages.menu.error;
   return el('div', { class: 'menu-status menu-status--error' }, [
     el('p', {}, [text]),
-    el('button', { type: 'button', class: 'menu-status__retry min-h-11 min-w-11', 'data-action': 'retry-menu' }, [
-      messages.menu.retry,
-    ]),
+    el(
+      'button',
+      {
+        type: 'button',
+        class: 'menu-status__retry min-h-11 min-w-11 active:scale-95 transition-transform duration-100',
+        'data-action': 'retry-menu',
+      },
+      [messages.menu.retry],
+    ),
   ]);
 }
 
@@ -151,7 +157,7 @@ function renderReady(menuState, cartLines) {
     fragment.appendChild(
       el('section', { id: categoryId(category), class: 'menu-category scroll-mt-28' }, [
         el('h2', { class: 'menu-category__title text-lg font-bold text-slate-900 tracking-tight' }, [
-          category || 'Otros',
+          messages.menu.categoryTitle(category, items.length),
         ]),
         el('ul', { class: 'menu-list flex flex-col gap-3 mt-2' }, items.map((item) => renderItem(item, cartLines))),
       ]),

@@ -74,8 +74,8 @@ function renderChip(category, id, isActive) {
     {
       type: 'button',
       class: isActive
-        ? 'bg-slate-900 text-white font-semibold text-xs px-4 py-2 rounded-full whitespace-nowrap shadow-sm shrink-0'
-        : 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-full whitespace-nowrap transition-colors shrink-0',
+        ? 'bg-slate-900 text-white font-semibold text-xs px-4 py-2 rounded-full whitespace-nowrap shadow-sm shrink-0 active:scale-95 transition-transform duration-100'
+        : 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-full whitespace-nowrap shrink-0 active:scale-95 transition duration-100',
       'data-action': 'scroll-to-category',
       'data-category-id': id,
       'aria-current': isActive ? 'true' : 'false',
