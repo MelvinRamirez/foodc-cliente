@@ -1,6 +1,6 @@
 import { NOTES_MAX, QTY_MAX } from './config.js';
 
-const DEFAULTS = { cart: { lines: [], notes: '' }, lastReceipt: null, ambiguousPending: null };
+const DEFAULTS = { cart: { lines: [], notes: '' }, lastReceipt: null, ambiguousPending: null, table: null };
 
 function sanitizeCartLine(line) {
   if (!line || typeof line !== 'object') return null;
@@ -31,7 +31,7 @@ function sanitizeCart(raw) {
  *
  * @param {{ getItem: (key: string) => string|null } | null} storage
  * @param {string} key
- * @returns {{ cart: import('./cart.js').Cart, lastReceipt: any, ambiguousPending: any }}
+ * @returns {{ cart: import('./cart.js').Cart, lastReceipt: any, ambiguousPending: any, table: string|null }}
  */
 export function loadPersisted(storage, key) {
   if (!storage) return { ...DEFAULTS };
@@ -58,13 +58,20 @@ export function loadPersisted(storage, key) {
     cart: sanitizeCart(parsed.cart),
     lastReceipt: parsed.lastReceipt ?? null,
     ambiguousPending: parsed.ambiguousPending ?? null,
+    table: typeof parsed.table === 'string' ? parsed.table : null,
   };
 }
 
 /**
- * Suscribe al store y escribe `{ v:1, cart, lastReceipt, ambiguousPending }`
- * en `storage[key]` únicamente cuando cambia la referencia de alguna de
- * esas tres porciones. Envuelve `setItem` en try/catch.
+ * Suscribe al store y escribe `{ v:1, cart, lastReceipt, ambiguousPending,
+ * table }` en `storage[key]` únicamente cuando cambia la referencia de
+ * alguna de esas cuatro porciones. Envuelve `setItem` en try/catch.
+ *
+ * El valor de mesa se persiste junto al resto para que `loadPersisted`
+ * pueda compararlo contra la mesa resuelta en la próxima carga: sin esto,
+ * un mismo navegador usado para pedir en la mesa 05 y después en la mesa
+ * 12 (mismo dispositivo, otro QR) seguía mostrando el carrito/recibo de la
+ * mesa 05 al abrir la 12, porque `localStorage` es por origen, no por mesa.
  *
  * @param {import('./store.js').createStore<any>} store
  * @param {{ setItem: (key: string, value: string) => void } | null} storage
@@ -76,24 +83,23 @@ export function attachPersistence(store, storage, key) {
     return () => {};
   }
 
-  // Una sola suscripción compara las tres porciones relevantes y escribe a
-  // lo sumo una vez por mutación real, incluso si varias cambian a la vez
-  // (p. ej. orderSucceeded cambia cart + lastReceipt + ambiguousPending en
-  // una única transición: debe producir una sola escritura atómica).
   let prevCart = store.getState().cart;
   let prevReceipt = store.getState().lastReceipt;
   let prevAmbiguous = store.getState().ambiguousPending;
+  let prevTable = store.getState().table.value;
 
   return store.subscribe((state) => {
     const cartChanged = state.cart !== prevCart;
     const receiptChanged = state.lastReceipt !== prevReceipt;
     const ambiguousChanged = state.ambiguousPending !== prevAmbiguous;
+    const tableChanged = state.table.value !== prevTable;
 
     prevCart = state.cart;
     prevReceipt = state.lastReceipt;
     prevAmbiguous = state.ambiguousPending;
+    prevTable = state.table.value;
 
-    if (!cartChanged && !receiptChanged && !ambiguousChanged) {
+    if (!cartChanged && !receiptChanged && !ambiguousChanged && !tableChanged) {
       return;
     }
 
@@ -102,6 +108,7 @@ export function attachPersistence(store, storage, key) {
       cart: state.cart,
       lastReceipt: state.lastReceipt,
       ambiguousPending: state.ambiguousPending,
+      table: state.table.value,
     });
     try {
       storage.setItem(key, payload);

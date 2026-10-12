@@ -49,6 +49,16 @@ function main() {
     sessionValue: sessionStorageRef ? sessionStorageRef.getItem(TABLE_SESSION_KEY) : null,
   });
 
+  // El carrito/recibo persistidos quedan atados a la mesa con la que se
+  // guardaron (persistence.js). Si esta carga resuelve una mesa distinta
+  // (mismo navegador, otro QR), se descartan en vez de mostrar el pedido
+  // de la mesa anterior.
+  if (hydrated.table !== null && hydrated.table !== table.value) {
+    hydrated.cart = undefined;
+    hydrated.lastReceipt = null;
+    hydrated.ambiguousPending = null;
+  }
+
   const store = createStore(initialState(hydrated, table));
   attachPersistence(store, localStorageRef, STORAGE_KEY);
 

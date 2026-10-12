@@ -1,5 +1,6 @@
 import { messages } from '../messages.js';
 import { formatMoney, formatTableLabel } from '../format.js';
+import { select } from '../store.js';
 import { el, mount } from './dom.js';
 
 /**
@@ -147,7 +148,7 @@ function render(slice) {
  * @returns {() => void} unmount
  */
 export function mountReceiptView(root, store, handlers) {
-  return mount(
+  const unmount = mount(
     root,
     store,
     (state) => ({ lastReceipt: state.lastReceipt, table: state.table }),
@@ -156,4 +157,20 @@ export function mountReceiptView(root, store, handlers) {
       if (action === 'new-order') handlers.startNewOrder();
     },
   );
+
+  // El recibo se arma en `#receipt-root`, al tope de `<main>`, pero al
+  // confirmar el pedido el usuario suele estar scrolleado más abajo (en el
+  // menú o en el carrito que acaba de cerrarse) — sin esto, el ticket queda
+  // invisible fuera de pantalla y parece que "no pasó nada" al enviar.
+  const unsubScroll = select(store, (state) => state.lastReceipt, (receipt) => {
+    if (!receipt) return;
+    requestAnimationFrame(() => {
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  return function unmountAll() {
+    unmount();
+    unsubScroll();
+  };
 }
