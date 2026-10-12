@@ -7,7 +7,7 @@
 // estando offline (`diner-pwa-shell`, "API Requests Are Always Network-Only").
 
 const CACHE_PREFIX = 'foodc-shell-';
-const CACHE_VERSION = 'foodc-shell-v1'; // se incrementa en cada deploy que cambie archivos del shell
+const CACHE_VERSION = 'foodc-shell-v2'; // se incrementa en cada deploy que cambie archivos del shell
 
 const PRECACHE = [
   './',
@@ -29,7 +29,7 @@ const PRECACHE = [
   './js/views/category-nav.js',
   './js/views/menu-view.js',
   './js/views/table-modal.js',
-  './js/views/cart-view.js',
+  './js/views/cart-sheet.js',
   './js/views/submit-view.js',
   './js/views/receipt-view.js',
   './img/placeholder-dish.svg',
