@@ -11,6 +11,7 @@ export const messages = {
     add: '+ Agregar',
     increment: 'Agregar una unidad',
     decrement: 'Quitar una unidad',
+    categoryTitle: (name, count) => `${name || 'Otros'} (${count})`,
   },
   image: {
     alt: 'Imagen del plato',
@@ -56,11 +57,13 @@ export const messages = {
     fieldNotes: 'Revisá las notas para la cocina.',
   },
   receipt: {
-    title: 'Pedido recibido',
-    orderId: 'Número de pedido',
-    table: 'Mesa',
-    timestamp: 'Fecha',
+    title: '¡Pedido Enviado a Cocina!',
+    subtitle: 'La comanda fue recibida con éxito. Tus platillos se encuentran en preparación.',
+    orderId: (id) => `#${id}`,
+    timestamp: 'Hora',
+    notesLabel: 'Notas',
     total: 'Total',
-    newOrder: 'Nuevo pedido',
+    newOrder: (tableLabel) => `➕ Pedir algo más para la ${tableLabel}`,
+    assistance: '¿Necesitas asistencia? Llamar al personal de mesa',
   },
 };

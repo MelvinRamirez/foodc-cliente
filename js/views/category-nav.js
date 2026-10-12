@@ -67,6 +67,42 @@ export function pickActiveCategory(entries, currentActiveId) {
   return best.target.id;
 }
 
+// Altura del header + nav sticky (56px + ~56px) y del padding inferior fijo
+// de `<main>` (`pb-28` = 112px): ambos se restan al calcular cuánto espacio
+// extra necesita la última categoría para poder llegar a la banda superior
+// que observa el `IntersectionObserver` (ver `updateScrollSpacer`).
+const STICKY_OFFSET_PX = 112;
+const EXISTING_BOTTOM_PADDING_PX = 112;
+
+/**
+ * Sin este espaciador, una última categoría con poco contenido (p. ej. 2
+ * items) puede no tener suficiente alto de documento debajo para que el
+ * navegador la desplace hasta la banda superior que vigila el observer —
+ * el scroll se topa con el final del documento antes de llegar ahí, y el
+ * chip activo queda "pegado" en la categoría anterior aunque el usuario
+ * haya tocado/scrolleado hasta la última. Este cálculo garantiza que
+ * siempre exista suficiente alto de scroll, cualquiera sea el tamaño de
+ * la última sección.
+ *
+ * @param {string[]} categories
+ */
+function updateScrollSpacer(categories) {
+  const spacer = document.getElementById('menu-scroll-spacer');
+  if (!spacer) return;
+  if (categories.length === 0) {
+    spacer.style.height = '0px';
+    return;
+  }
+  const lastSection = document.getElementById(categoryId(categories[categories.length - 1]));
+  const lastSectionHeight = lastSection ? lastSection.offsetHeight : 0;
+  const viewportHeight = window.innerHeight || 0;
+  const needed = Math.max(
+    0,
+    viewportHeight - lastSectionHeight - STICKY_OFFSET_PX - EXISTING_BOTTOM_PADDING_PX,
+  );
+  spacer.style.height = `${needed}px`;
+}
+
 function renderChip(category, id, isActive) {
   const label = category || 'Otros';
   return el(
@@ -74,8 +110,8 @@ function renderChip(category, id, isActive) {
     {
       type: 'button',
       class: isActive
-        ? 'bg-slate-900 text-white font-semibold text-xs px-4 py-2 rounded-full whitespace-nowrap shadow-sm shrink-0'
-        : 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-full whitespace-nowrap transition-colors shrink-0',
+        ? 'bg-slate-900 text-white font-semibold text-xs px-4 py-2 rounded-full whitespace-nowrap shadow-sm shrink-0 active:scale-95 transition-transform duration-100'
+        : 'bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-full whitespace-nowrap shrink-0 active:scale-95 transition duration-100',
       'data-action': 'scroll-to-category',
       'data-category-id': id,
       'aria-current': isActive ? 'true' : 'false',
@@ -106,6 +142,7 @@ export function mountCategoryNav(root, store) {
   let activeId = null;
   let observer = null;
   let lastCategories = null;
+  let suppressObserverUntil = 0;
 
   function renderChips(categories) {
     const fragment = document.createDocumentFragment();
@@ -121,6 +158,12 @@ export function mountCategoryNav(root, store) {
     if (typeof IntersectionObserver === 'undefined') return;
     observer = new IntersectionObserver(
       (entries) => {
+        // Mientras dura el scroll programático disparado por un click (ver
+        // `handleClick`), ignoramos al observer: el scroll suave de paso
+        // por categorías intermedias dispararía cambios de intersección
+        // que pisarían el chip que el usuario eligió explícitamente, antes
+        // de que el scroll termine de asentarse en la sección correcta.
+        if (Date.now() < suppressObserverUntil) return;
         const next = pickActiveCategory(entries, activeId);
         if (next !== activeId) {
           activeId = next;
@@ -147,22 +190,42 @@ export function mountCategoryNav(root, store) {
     if (activeId === null && categories.length > 0) activeId = categoryId(categories[0]);
     renderChips(categories);
     observeSections(categories);
+    // Se recalcula tras el próximo frame: el DOM de las secciones (montado
+    // por menu-view.js vía su propia suscripción a `state.menu`) recién
+    // tiene su alto final una vez que el navegador hizo layout.
+    requestAnimationFrame(() => updateScrollSpacer(categories));
+  }
+
+  function handleResize() {
+    if (lastCategories) updateScrollSpacer(lastCategories);
   }
 
   function handleClick(event) {
     const target = event.target.closest ? event.target.closest('[data-action="scroll-to-category"]') : null;
     if (!target || !root.contains(target)) return;
-    const section = document.getElementById(target.dataset.categoryId);
+    const id = target.dataset.categoryId;
+    // Actualiza el chip activo de inmediato (optimista), sin esperar a que
+    // el IntersectionObserver detecte la sección: así el click siempre
+    // refleja la elección del usuario, incluso si la sección es corta o el
+    // observer tarda en reaccionar.
+    if (id !== activeId && lastCategories) {
+      activeId = id;
+      renderChips(lastCategories);
+    }
+    suppressObserverUntil = Date.now() + 700;
+    const section = document.getElementById(id);
     if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   renderNow();
   root.addEventListener('click', handleClick);
+  window.addEventListener('resize', handleResize);
   const unsubscribe = select(store, (state) => state.menu, renderNow);
 
   return function unmount() {
     unsubscribe();
     root.removeEventListener('click', handleClick);
+    window.removeEventListener('resize', handleResize);
     if (observer) observer.disconnect();
   };
 }

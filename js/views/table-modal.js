@@ -33,7 +33,11 @@ export function mountTableModal(root, store, handlers) {
     el('p', { class: 'table-modal__prompt' }, [messages.table.modalPrompt]),
     input,
     errorEl,
-    el('button', { type: 'submit', class: 'table-modal__submit min-h-11 min-w-11' }, [messages.table.modalSubmit]),
+    el(
+      'button',
+      { type: 'submit', class: 'table-modal__submit min-h-11 min-w-11 active:scale-95 transition-transform duration-100' },
+      [messages.table.modalSubmit],
+    ),
   ]);
 
   const dialog = el('dialog', { class: 'table-modal' }, [form]);

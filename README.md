@@ -50,11 +50,11 @@ npm run build:css
 
 ### Bump de versión de caché
 
-El service worker (`sw.js`) precachea el app shell con un nombre de caché versionado (`CACHE_VERSION`, actualmente `foodc-shell-v1`). **En cada deploy que cambie HTML, CSS, JS, el manifest o los íconos**, hay que incrementar ese valor (ej. `foodc-shell-v2`) antes de pushear — si no se bumpea, los clientes que ya instalaron la PWA siguen sirviendo el shell viejo desde caché indefinidamente.
+El service worker (`sw.js`) precachea el app shell con un nombre de caché versionado (`CACHE_VERSION`, actualmente `foodc-shell-v3`). **En cada deploy que cambie HTML, CSS, JS, el manifest o los íconos**, hay que incrementar ese valor (ej. `foodc-shell-v4`) antes de pushear — si no se bumpea, los clientes que ya instalaron la PWA siguen sirviendo el shell viejo desde caché indefinidamente.
 
 ```js
 // sw.js
-const CACHE_VERSION = 'foodc-shell-v2'; // ← incrementar en cada deploy del shell
+const CACHE_VERSION = 'foodc-shell-v3'; // ← incrementar en cada deploy del shell
 ```
 
 Las llamadas a la API (`script.google.com` / `script.googleusercontent.com`) nunca se cachean — siempre van a la red, así que no requieren ningún bump.

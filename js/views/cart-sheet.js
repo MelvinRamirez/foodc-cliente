@@ -46,7 +46,11 @@ function renderNotice(cartNotice, onDismiss) {
     el('ul', { class: 'cart-notice__list' }, items),
     el(
       'button',
-      { type: 'button', class: 'cart-notice__dismiss min-h-11 min-w-11', onclick: onDismiss },
+      {
+        type: 'button',
+        class: 'cart-notice__dismiss min-h-11 min-w-11 active:scale-95 transition-transform duration-100',
+        onclick: onDismiss,
+      },
       [messages.cart.noticeDismiss],
     ),
   ]);
@@ -60,7 +64,8 @@ function renderLine(line, handlers) {
         'button',
         {
           type: 'button',
-          class: 'cart-line__btn min-h-11 min-w-11 rounded-full bg-slate-100 text-slate-700',
+          class:
+            'cart-line__btn min-h-11 min-w-11 rounded-full bg-slate-100 text-slate-700 active:scale-95 transition-transform duration-100',
           'aria-label': 'Quitar una unidad',
           onclick: () => handlers.decrement(line.item_id),
         },
@@ -71,7 +76,8 @@ function renderLine(line, handlers) {
         'button',
         {
           type: 'button',
-          class: 'cart-line__btn min-h-11 min-w-11 rounded-full bg-slate-100 text-slate-700',
+          class:
+            'cart-line__btn min-h-11 min-w-11 rounded-full bg-slate-100 text-slate-700 active:scale-95 transition-transform duration-100',
           'aria-label': 'Agregar una unidad',
           onclick: () => handlers.increment(line.item_id),
         },
@@ -81,7 +87,8 @@ function renderLine(line, handlers) {
         'button',
         {
           type: 'button',
-          class: 'cart-line__remove min-h-11 min-w-11 text-xs text-slate-400 underline',
+          class:
+            'cart-line__remove min-h-11 min-w-11 text-xs text-slate-400 underline active:scale-95 transition-transform duration-100',
           onclick: () => handlers.removeItem(line.item_id),
         },
         ['Quitar'],
@@ -114,7 +121,8 @@ function renderEmptyState(onExplore) {
       'button',
       {
         type: 'button',
-        class: 'bg-slate-900 text-white text-xs font-semibold px-5 py-2.5 rounded-full mt-4 min-h-11',
+        class:
+          'bg-slate-900 text-white text-xs font-semibold px-5 py-2.5 rounded-full mt-4 min-h-11 active:scale-95 transition-transform duration-100',
         onclick: onExplore,
       },
       [messages.cart.emptyExploreMenu],
@@ -182,7 +190,7 @@ export function mountCartSheet(root, store, handlers) {
     'button',
     {
       type: 'button',
-      class: 'min-h-11 min-w-11 text-slate-400 text-lg',
+      class: 'min-h-11 min-w-11 text-slate-400 text-lg active:scale-95 transition-transform duration-100',
       'aria-label': messages.cart.sheetClose,
       onclick: () => closeSheet(),
     },
@@ -216,7 +224,8 @@ export function mountCartSheet(root, store, handlers) {
       'button',
       {
         type: 'button',
-        class: 'bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2.5 py-1.5 rounded-full min-h-11',
+        class:
+          'bg-white border border-slate-200 text-slate-600 text-[11px] font-medium px-2.5 py-1.5 rounded-full min-h-11 active:scale-95 transition-transform duration-100',
         onclick: () => {
           textarea.value = appendQuickTag(textarea.value, tag, NOTES_MAX);
           fireNotesInput();
@@ -338,11 +347,18 @@ export function mountCartSheet(root, store, handlers) {
   const unsubCart = select(store, (state) => state.cart, renderNow);
   const unsubNotice = select(store, (state) => state.cartNotice, renderNow);
   const unsubTable = select(store, (state) => state.table, renderNow);
+  // Al confirmarse un pedido, el carrito se vacía y `lastReceipt` pasa a
+  // tener valor: si el sheet seguía abierto (el usuario lo abrió para
+  // enviar el pedido), hay que cerrarlo para que el ticket de confirmación
+  // (`receipt-view.js`, montado aparte en `#receipt-root`) quede visible
+  // en vez de taparlo con el estado vacío del carrito.
+  const unsubReceipt = select(store, (state) => state.lastReceipt, closeSheet);
 
   function unmount() {
     unsubCart();
     unsubNotice();
     unsubTable();
+    unsubReceipt();
     textarea.removeEventListener('input', handleNotesInput);
     root.removeChild(cartBar);
     root.removeChild(backdrop);
