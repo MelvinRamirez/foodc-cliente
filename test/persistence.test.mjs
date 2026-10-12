@@ -19,7 +19,12 @@ function fakeStorage(initial = new Map()) {
 
 test('loadPersisted tolerates a null storage', () => {
   const result = loadPersisted(null, 'k');
-  assert.deepStrictEqual(result, { cart: { lines: [], notes: '' }, lastReceipt: null, ambiguousPending: null });
+  assert.deepStrictEqual(result, {
+    cart: { lines: [], notes: '' },
+    lastReceipt: null,
+    ambiguousPending: null,
+    table: null,
+  });
 });
 
 test('loadPersisted tolerates missing key', () => {
@@ -94,6 +99,37 @@ test('a successful mutation results in exactly one setItem call', () => {
   setItemCalls = 0;
   store.setState((s) => actions.orderSucceeded(s, { data: { order_id: 'ORD-1' } }));
   assert.equal(setItemCalls, 1);
+});
+
+test('loadPersisted round-trips the table value persisted alongside cart/receipt', () => {
+  const stored = { v: 1, cart: { lines: [], notes: '' }, lastReceipt: null, ambiguousPending: null, table: '05' };
+  const storage = fakeStorage(new Map([['k', JSON.stringify(stored)]]));
+  const result = loadPersisted(storage, 'k');
+  assert.equal(result.table, '05');
+});
+
+test('loadPersisted treats a non-string table as absent', () => {
+  const stored = { v: 1, cart: { lines: [], notes: '' }, lastReceipt: null, ambiguousPending: null, table: 7 };
+  const storage = fakeStorage(new Map([['k', JSON.stringify(stored)]]));
+  const result = loadPersisted(storage, 'k');
+  assert.equal(result.table, null);
+});
+
+test('a table-only change still results in exactly one setItem call, with the table included', () => {
+  const storage = fakeStorage();
+  const store = createStore(initialState({}, { value: '05', source: 'url' }));
+  attachPersistence(store, storage, 'k');
+
+  let setItemCalls = 0;
+  const originalSetItem = storage.setItem.bind(storage);
+  storage.setItem = (...args) => {
+    setItemCalls++;
+    originalSetItem(...args);
+  };
+
+  store.setState((s) => actions.tableResolved(s, { value: '12', source: 'url' }));
+  assert.equal(setItemCalls, 1);
+  assert.equal(JSON.parse(storage.map.get('k')).table, '12');
 });
 
 test('a setItem that throws does not crash the store or lose in-memory state', () => {
