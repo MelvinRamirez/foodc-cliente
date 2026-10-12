@@ -50,7 +50,7 @@ function imageBox(item) {
  * Botón/selector de acción de la tarjeta de producto: "+ Agregar" cuando
  * el item aún no tiene unidades en el carrito, o un stepper compacto
  * `[- n +]` cuando `quantity > 0`. Dispara los mismos handlers
- * `increment`/`decrement` que ya usa `cart-view.js` (sin duplicar lógica
+ * `increment`/`decrement` que ya usa `cart-sheet.js` (sin duplicar lógica
  * de dispatch en `actions.js`), vía los `data-action`
  * `increment-item`/`decrement-item` nuevos que `mountMenuView` resuelve
  * más abajo contra `handlers.increment`/`handlers.decrement`.
