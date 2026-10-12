@@ -347,11 +347,18 @@ export function mountCartSheet(root, store, handlers) {
   const unsubCart = select(store, (state) => state.cart, renderNow);
   const unsubNotice = select(store, (state) => state.cartNotice, renderNow);
   const unsubTable = select(store, (state) => state.table, renderNow);
+  // Al confirmarse un pedido, el carrito se vacía y `lastReceipt` pasa a
+  // tener valor: si el sheet seguía abierto (el usuario lo abrió para
+  // enviar el pedido), hay que cerrarlo para que el ticket de confirmación
+  // (`receipt-view.js`, montado aparte en `#receipt-root`) quede visible
+  // en vez de taparlo con el estado vacío del carrito.
+  const unsubReceipt = select(store, (state) => state.lastReceipt, closeSheet);
 
   function unmount() {
     unsubCart();
     unsubNotice();
     unsubTable();
+    unsubReceipt();
     textarea.removeEventListener('input', handleNotesInput);
     root.removeChild(cartBar);
     root.removeChild(backdrop);
