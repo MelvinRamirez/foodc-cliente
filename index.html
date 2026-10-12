@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FoodC — Pedir desde la mesa</title>
+    <link rel="stylesheet" href="./css/app.css" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#111827" />
+  </head>
+  <body class="min-h-screen bg-gray-50 font-sans text-gray-900">
+    <header class="sticky top-0 z-10 flex items-center justify-between bg-white px-4 py-3 shadow">
+      <h1 class="text-lg font-semibold">FoodC</h1>
+      <div id="table-label" class="text-sm text-gray-600"></div>
+    </header>
+
+    <main class="mx-auto flex max-w-xl flex-col gap-6 p-4">
+      <div id="receipt-root"></div>
+      <section id="menu-root" aria-label="Menú" class="flex flex-col gap-4"></section>
+      <section id="cart-root" aria-label="Carrito" class="flex flex-col gap-4 rounded-lg bg-white p-4 shadow"></section>
+      <section id="submit-root" aria-label="Enviar pedido" class="flex flex-col gap-2"></section>
+    </main>
+
+    <div id="table-modal-root"></div>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
