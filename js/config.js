@@ -2,9 +2,7 @@
 // configurable por el llamador en tiempo de ejecución: son el contrato
 // con el backend documentado en openspec/specs/{order-api,menu-api,api-transport}.
 
-// Placeholder: confirmar contra la URL de deployment productivo antes de
-// publicar (ver design.md "Open Questions").
-export const API_URL = 'https://script.google.com/macros/s/<DEPLOYMENT_ID>/exec';
+export const API_URL = 'https://script.google.com/macros/s/AKfycbzN9m1QXFS0IW7ervb4zbhK8AYJiHLXahur4QUPC-BPJYZrwaeAxwyJ3QY8nVRRpFqH/exec';
 
 export const ORDER_TIMEOUT_MS = 35000;
 export const MENU_TIMEOUT_MS = 15000;
