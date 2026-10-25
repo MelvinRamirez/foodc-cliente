@@ -72,7 +72,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (request.mode === 'navigate') {
+  if (request.mode === 'navigate' && request.destination === 'document') {
     event.respondWith(
       caches.match('./index.html').then((cached) => cached || fetch(request)),
     );
